@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model cards {
+  cardid            Int                 @id @default(autoincrement())
+  userid            Int
+  cardtypeid        Int?
+  nfcuid            String?             @unique @db.VarChar(50)
+  alias             String?             @db.VarChar(50)
+  balance           Decimal?            @default(0.00) @db.Decimal(10, 2)
+  status            String?             @default("active") @db.VarChar(20)
+  registrationdate  DateTime?           @default(now()) @db.Timestamp(6)
+  lastrecharge      DateTime?           @db.Timestamp(6)
+  lastuse           DateTime?           @db.Timestamp(6)
+  cardtypes         cardtypes?          @relation(fields: [cardtypeid], references: [cardtypeid], onDelete: NoAction, onUpdate: NoAction)
+  users             users               @relation(fields: [userid], references: [userid], onDelete: NoAction, onUpdate: NoAction)
+  cardstatushistory cardstatushistory[]
+  cardusage         cardusage[]
+  recharges         recharges[]
+}
+
+model cardstatushistory {
+  historyid      Int       @id @default(autoincrement())
+  cardid         Int
+  previousstatus String    @db.VarChar(20)
+  newstatus      String    @db.VarChar(20)
+  reason         String?
+  adminuserid    Int?
+  changedate     DateTime? @default(now()) @db.Timestamp(6)
+  users          users?    @relation(fields: [adminuserid], references: [userid], onDelete: NoAction, onUpdate: NoAction)
+  cards          cards     @relation(fields: [cardid], references: [cardid], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model cardtypes {
+  cardtypeid  Int     @id @default(autoincrement())
+  description String  @db.VarChar(100)
+  cards       cards[]
+}
+
+model cardusage {
+  usageid              Int       @id @default(autoincrement())
+  cardid               Int?
+  userid               Int
+  stationid            Int
+  fareapplied          Decimal   @db.Decimal(10, 2)
+  previousbalance      Decimal   @db.Decimal(10, 2)
+  newbalance           Decimal   @db.Decimal(10, 2)
+  usagedate            DateTime? @default(now()) @db.Timestamp(6)
+  validationsuccessful Boolean?  @default(true)
+  rejectionreason      String?   @db.VarChar(255)
+  usagetype            String?   @default("card") @db.VarChar(20)
+  cards                cards?    @relation(fields: [cardid], references: [cardid], onDelete: Cascade, onUpdate: NoAction)
+  stations             stations  @relation(fields: [stationid], references: [stationid], onDelete: NoAction, onUpdate: NoAction)
+  users                users     @relation(fields: [userid], references: [userid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model notifications {
+  notificationid Int       @id @default(autoincrement())
+  userid         Int
+  type           String    @db.VarChar(20)
+  title          String    @db.VarChar(100)
+  message        String
+  readstatus     Boolean?  @default(false)
+  sentdate       DateTime? @default(now()) @db.Timestamp(6)
+  users          users     @relation(fields: [userid], references: [userid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model paymentmethods {
+  paymentid           Int    @id @default(autoincrement())
+  userid              Int
+  paymentmethodnumber String @db.VarChar(25)
+  cvv                 Int?
+  ex_month            Int?
+  ex_year             Int?
+  users               users  @relation(fields: [userid], references: [userid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model recharges {
+  rechargeid        Int       @id @default(autoincrement())
+  cardid            Int
+  userid            Int
+  amount            Decimal   @db.Decimal(5, 2)
+  previousbalance   Decimal   @db.Decimal(5, 2)
+  newbalance        Decimal   @db.Decimal(5, 2)
+  paymentmethod     String    @db.VarChar(20)
+  paymentreference  String?   @db.VarChar(100)
+  transactionstatus String?   @default("completed") @db.VarChar(20)
+  rechargedate      DateTime? @default(now()) @db.Timestamp(6)
+  deviceip          String?   @db.VarChar(45)
+  devicemodel       String?   @db.VarChar(100)
+  cards             cards     @relation(fields: [cardid], references: [cardid], onDelete: Cascade, onUpdate: NoAction)
+  users             users     @relation(fields: [userid], references: [userid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model stations {
+  stationid Int         @id @default(autoincrement())
+  code      String      @unique @db.VarChar(10)
+  name      String      @db.VarChar(100)
+  line      String      @db.VarChar(10)
+  address   String?
+  active    Boolean?    @default(true)
+  lat       Float?
+  lng       Float?
+  cardusage cardusage[]
+}
+
+model users {
+  userid            Int                 @id @default(autoincrement())
+  username          String?             @unique @db.VarChar(20)
+  firstname         String              @db.VarChar(100)
+  lastname          String              @db.VarChar(100)
+  email             String              @unique @db.VarChar(150)
+  phone             String?             @db.VarChar(20)
+  passwordhash      String              @db.VarChar(255)
+  registrationdate  DateTime?           @default(now()) @db.Timestamp(6)
+  lastaccess        DateTime?           @db.Timestamp(6)
+  status            String?             @default("active") @db.VarChar(20)
+  cards             cards[]
+  cardstatushistory cardstatushistory[]
+  cardusage         cardusage[]
+  notifications     notifications[]
+  paymentmethods    paymentmethods[]
+  recharges         recharges[]
+}
+
+model deletedcards {
+  deletedcardid    Int       @id @default(autoincrement())
+  originalcardid   Int
+  userid           Int
+  cardtypeid       Int?
+  nfcuid           String?   @db.VarChar(50)
+  alias            String?   @db.VarChar(50)
+  balance          Decimal   @default(0.00) @db.Decimal(10, 2)
+  status           String?   @db.VarChar(20)
+  registrationdate DateTime? @db.Timestamp(6)
+  lastrecharge     DateTime? @db.Timestamp(6)
+  lastuse          DateTime? @db.Timestamp(6)
+  deleteddate      DateTime  @default(now()) @db.Timestamp(6)
+  transferredto    Int?
+}
+
+model adminusers {
+  adminid     Int     @id @default(autoincrement())
+  firstname   String? @db.VarChar(25)
+  lastname    String? @db.VarChar(25)
+  email       String? @db.VarChar(25)
+  phone       String? @db.VarChar(12)
+  permissions String? @db.VarChar(100)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model cardusagehistory {
+  usageid              Int       @id
+  cardid               Int?
+  stationid            Int?
+  fareapplied          Decimal?  @db.Decimal(10, 2)
+  previousbalance      Decimal?  @db.Decimal(10, 2)
+  newbalance           Decimal?  @db.Decimal(10, 2)
+  usagedate            DateTime? @db.Timestamp(6)
+  validationsuccessful Boolean?
+  rejectionreason      String?   @db.VarChar(255)
+  usagetype            String?   @db.VarChar(20)
+}

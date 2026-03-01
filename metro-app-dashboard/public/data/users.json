@@ -1,0 +1,40 @@
+[
+  {
+    "id": 1,
+    "name": "Alex Johnson",
+    "password": "1234",
+    "email": "alex.johnson@example.com",
+    "role": "Admin",
+    "status": "Active",
+    "metroCard": "Gold",
+    "lastActive": "2025-05-14"
+  },
+  {
+    "id": 2,
+    "name": "Sarah Lee",
+    "password": "abcd",
+    "email": "sarah.lee@example.com",
+    "role": "User",
+    "status": "Inactive",
+    "metroCard": "Silver",
+    "lastActive": "2025-05-13"
+  },
+  {
+    "name": "Roebrt",
+    "email": "afsfa@gmail.com",
+    "role": "Admin",
+    "status": "Active",
+    "metroCard": "Gold",
+    "lastActive": "2025-05-16",
+    "id": 1747401975298
+  },
+  {
+    "name": "Kevin",
+    "email": "Kevin@gmail.com",
+    "role": "User",
+    "status": "Active",
+    "metroCard": "Standard",
+    "lastActive": "2025-05-16",
+    "id": 1747406220470
+  }
+]

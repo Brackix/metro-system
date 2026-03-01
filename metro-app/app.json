@@ -1,0 +1,60 @@
+{
+  "expo": {
+    "name": "metro-app",
+    "slug": "metro-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.metroapp",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Esta app usa huella digital para acceso rápido y seguro.",
+        "NSLocationWhenInUseUsageDescription": "Permitir que la app use tu ubicación para mostrar estaciones cercanas."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.yourcompany.metroapp",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Permitir que la app use tu ubicación para mostrar estaciones cercanas."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Esta app usa huella digital para acceso rápido y seguro a tu cuenta."
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9d9eaf9c-7acf-4969-aae3-1c2f810117d1"
+      }
+    },
+    "owner": "rey1718"
+  }
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Torniquete - UI</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/png" href="img/logo.png" />
+</head>
+<body class="waiting-border">
+  <div class="container">
+    <header>
+      <img src="img/logo.png" alt="Logo del Metro" class="logo" />
+    </header>
+    <h2 id="status-text">Esperando tu tarjeta...</h2>
+    <div class="card-wrapper">
+      <div id="card" class="card waiting">
+        <img src="img/brazo.png" alt="Brazo" id="brazo-img" class="brazo" />
+        <img src="img/tarjeta.png" alt="Tarjeta" id="torniquete-img" />
+        
+        <!-- Mitades de la tarjeta para animación de romperse -->
+        <div id="tarjeta-mitades" class="tarjeta-mitades hidden">
+          <div class="mitad-izquierda">
+            <img src="img/tarjeta.png" alt="Mitad izquierda" />
+          </div>
+          <div class="mitad-derecha">
+            <img src="img/tarjeta.png" alt="Mitad derecha" />
+          </div>
+        </div>
+      </div>
+      <div class="icon-container">
+        <img src="img/waiting.gif" alt="Esperando" id="icon-waiting" class="icon visible" />
+        <img src="img/aceptado.gif" alt="Aceptado" id="icon-accept" class="icon hidden" />
+        <img src="img/rechazado.gif" alt="Rechazado" id="icon-reject" class="icon hidden" />
+      </div>
+    </div>
+    <div class="buttons">
+      <button id="btn-accept" class="btn-accept">
+        <span class="btn-hover-circle"></span>
+        <span class="btn-text">Aceptado</span>
+      </button>
+      <button id="btn-reject" class="btn-reject">
+        <span class="btn-hover-circle"></span>
+        <span class="btn-text">Rechazado</span>
+      </button>
+    </div>
+    <footer>
+       <a href="https://www.brackix.com/es" target="_blank" rel="noopener noreferrer">
+        <img src="img/brackix.png" alt="Logo de brackix" class="logo-footer" />
+      </a>
+    </footer>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
