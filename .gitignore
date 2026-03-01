@@ -1,0 +1,82 @@
+# ══════════════════════════════════════════════════════════════
+# metro-system monorepo — root .gitignore
+# ══════════════════════════════════════════════════════════════
+
+# ── Dependencies ─────────────────────────────────────────────
+node_modules/
+
+# ── Build outputs ────────────────────────────────────────────
+dist/
+build/
+out/
+.cache/
+
+# ── Expo / React Native ─────────────────────────────────────
+.expo/
+web-build/
+expo-env.d.ts
+
+# Prebuild-generated native directories (regenerated via `expo prebuild`)
+**/ios/
+**/android/
+
+# Metro bundler
+.metro-health-check*
+
+# ── Next.js ──────────────────────────────────────────────────
+.next/
+
+# ── TypeScript ───────────────────────────────────────────────
+*.tsbuildinfo
+
+# ── Environment & secrets ────────────────────────────────────
+.env
+.env.*
+!.env.example
+!.env.template
+
+# ── Signing & certificates (never commit these) ─────────────
+*.p12
+*.p8
+*.key
+*.pem
+*.jks
+*.mobileprovision
+*.cer
+
+# ── Prisma ───────────────────────────────────────────────────
+# Generated client (regenerated via `prisma generate`)
+**/node_modules/.prisma/
+
+# ── Debug logs ───────────────────────────────────────────────
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+
+# ── OS junk ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ── Editors ──────────────────────────────────────────────────
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Kotlin (React Native native builds) ─────────────────────
+.kotlin/
+*.orig.*
+
+# ── Testing & coverage ──────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ── Misc generated ──────────────────────────────────────────
+*.tgz
+.turbo/
+app-example/
