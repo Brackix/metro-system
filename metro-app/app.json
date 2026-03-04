@@ -16,7 +16,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.metroapp",
+      "bundleIdentifier": "com.montao",
       "infoPlist": {
         "NSFaceIDUsageDescription": "Esta app usa huella digital para acceso rápido y seguro.",
         "NSLocationWhenInUseUsageDescription": "Permitir que la app use tu ubicación para mostrar estaciones cercanas."

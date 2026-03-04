@@ -1,0 +1,119 @@
+# General OS/editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.orig
+*.rej
+*.tmp
+*.temp
+*.log
+logs/
+*.pid
+*.seed
+
+# IDEs and tooling
+.vscode/
+.idea/
+*.iml
+
+# Environment files (keep examples)
+.env
+.env.*
+
+# Node/JavaScript/TypeScript
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.yarn/patches/
+.turbo/
+
+# Build outputs
+build/
+dist/
+.out/
+.next/
+.nuxt/
+coverage/
+.nyc_output/
+
+# TypeScript
+*.tsbuildinfo
+
+# Package manager debug logs (keep lockfiles for reproducibility)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+# DO NOT ignore lockfiles
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+ENV/
+.pyre/
+.tox/
+.coverage*
+htmlcov/
+.eggs/
+.eggs-info/
+*.egg
+*.egg-info/
+dist-info/
+site/
+
+# Python packaging/build
+build/
+dist/
+wheelhouse/
+pip-wheel-metadata/
+
+# DO NOT ignore Python lockfiles (for reproducibility)
+# Pipfile.lock
+# poetry.lock
+# requirements*.txt
+
+# Databases and local data
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# Docker/local tooling
+.docker/
+.dockerignore.local
+
+# Misc caches
+.cache/
+.tmp/
+.temp/
+.sass-cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# OS-specific
+Icon?
+
+# If this repo uses Expo/React Native in this subproject, ignore Expo caches
+.expo/
+.expo-shared/
+
+# If CI/build systems produce artifacts here
+artifacts/
+outputs/

@@ -5,9 +5,9 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
+  }
 
-model cards {
+  model cards {
   cardid            Int                 @id @default(autoincrement())
   userid            Int
   cardtypeid        Int?

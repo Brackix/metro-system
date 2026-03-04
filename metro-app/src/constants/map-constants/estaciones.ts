@@ -1,4 +1,4 @@
-// Try to import from @env, fallback to manual env reading
+	// Try to import from @env, fallback to manual env reading
 import { API_URL } from "@env";
 let api_variable: string;
 try {
