@@ -19,7 +19,6 @@ logs/
 
 # Environment files (keep examples)
 .env
-.env.*
 
 # Node/JavaScript/TypeScript
 node_modules/

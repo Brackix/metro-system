@@ -1,13 +1,16 @@
-
-version: '3.8'
+# ==============================================================================
+#  Metro System — Docker Compose
+#  Usage:  ./build.sh          (auto-detects IP, builds & runs everything)
+#  Manual: API_URL=http://<IP>:4000/api docker compose up --build
+# ==============================================================================
 
 services:
+  # ── PostgreSQL Database ────────────────────────────────────────────────────────
   db:
     image: postgres:16
     container_name: metro_postgres_db
     restart: always
     environment:
-      # Bariables
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: Brackix123
       POSTGRES_DB: metroapp
@@ -15,6 +18,89 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── Backend API (Express + Prisma) ────────────────────────────────────────────
+  backend:
+    build:
+      context: ./metro-app-backend
+      dockerfile: Dockerfile
+    container_name: metro_backend
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: Brackix123
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: metroapp
+      PORT: 4000
+      FRONTEND_URL: http://localhost:3000
+      NODE_ENV: production
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "node -e \"fetch('http://localhost:4000/api/stations').then(r=>{if(!r.ok)throw 0;process.exit(0)}).catch(()=>process.exit(1))\"" ]
+      interval: 15s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+  # ── Dashboard (Next.js) ────────────────────────────────────────────────────────
+  dashboard:
+    build:
+      context: ./metro-app-dashboard
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:4000/api}
+    container_name: metro_dashboard
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # ── Expo Android APK Builder ───────────────────────────────────────────────────
+  metro-app:
+    build:
+      context: ./metro-app
+      dockerfile: Dockerfile
+      args:
+        API_URL: ${API_URL:-http://localhost:4000/api}
+    container_name: metro_app_builder
+    volumes:
+      - apk_output:/output
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # ── Web Turnstile (Express + static frontend) ────────────────────────────────
+  turnstile:
+    build:
+      context: ./metroapp-web-turnstile
+      dockerfile: Dockerfile
+    container_name: metro_turnstile
+    restart: always
+    ports:
+      - "5000:5000"
+
+  # ── NFC Receiver APK Builder (Expo) ──────────────────────────────────────────
+  nfc-receiver:
+    build:
+      context: ./metroapp-phoneNFChandle
+      dockerfile: Dockerfile
+    container_name: metro_nfc_builder
+    volumes:
+      - nfc_apk_output:/output
 
 volumes:
   postgres_data:
+  apk_output:
+  nfc_apk_output:
