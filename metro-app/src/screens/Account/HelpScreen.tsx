@@ -1,11 +1,11 @@
 import React from 'react';
 import {
-    Linking,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -40,10 +40,10 @@ export default function HelpScreen({ navigation }: any) {
     {
       icon: 'mail',
       title: 'Correo',
-      subtitle: 'ayuda@metroapp.do',
+      subtitle: 'ayuda@montaord.do',
       color: '#EF4444',
       bg: '#FEE2E2',
-      action: () => Linking.openURL('mailto:ayuda@metroapp.do'),
+      action: () => Linking.openURL('mailto:ayuda@montaord.do'),
     },
     {
       icon: 'chatbubbles',
@@ -51,7 +51,7 @@ export default function HelpScreen({ navigation }: any) {
       subtitle: 'Disponible 24/7',
       color: '#10B981',
       bg: '#D1FAE5',
-      action: () => {},
+      action: () => { },
     },
   ];
 

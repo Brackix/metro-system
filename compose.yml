@@ -46,6 +46,7 @@ services:
       PORT: ${PORT}
       FRONTEND_URL: ${FRONTEND_URL}
       NODE_ENV: ${NODE_ENV}
+      TURNIQUETE_URL: http://turnstile:5000
     depends_on:
       db:
         condition: service_healthy

@@ -51,6 +51,7 @@
     "@types/react-navigation": "^3.0.8",
     "babel-plugin-inline-dotenv": "^1.7.0",
     "babel-preset-expo": "^54.0.3",
+    "eas-cli": "^16.26.0",
     "typescript": "^5.9.3"
   }
 }
