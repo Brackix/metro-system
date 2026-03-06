@@ -32,7 +32,8 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.USE_BIOMETRIC",
-        "android.permission.USE_FINGERPRINT"
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.NFC"
       ]
     },
     "plugins": [
@@ -48,13 +49,24 @@
           "faceIDPermission": "Esta app usa huella digital para acceso rápido y seguro a tu cuenta."
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "node_modules/react-native-vector-icons/Fonts/Ionicons.ttf",
+            "node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf",
+            "node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf",
+            "node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"
+          ]
+        }
+      ]
     ],
+    "owner": "robert22f",
     "extra": {
       "eas": {
-        "projectId": "9d9eaf9c-7acf-4969-aae3-1c2f810117d1"
+        "projectId": "1d9a58e7-3639-437b-8be0-f86aa1fed466"
       }
-    },
-    "owner": "rey1718"
+    }
   }
 }

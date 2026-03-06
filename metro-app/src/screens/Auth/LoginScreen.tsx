@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
+  Image,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
@@ -25,11 +26,11 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { login } = useAuth();
-  const { 
-    isFingerprintAvailable, 
-    isFingerprintEnabled, 
+  const {
+    isFingerprintAvailable,
+    isFingerprintEnabled,
     loginWithFingerprint,
     enableFingerprintLogin,
     isCheckingFingerprint
@@ -61,7 +62,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     try {
       setIsLoading(true);
       await login(email, password);
-      
+
       // ✅ Solo preguntar si NO tiene huella habilitada
       if (isFingerprintAvailable && !isFingerprintEnabled) {
         Alert.alert(
@@ -69,8 +70,8 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
           '¿Quieres usar tu huella para futuros inicios de sesión?',
           [
             { text: 'No', style: 'cancel' },
-            { 
-              text: 'Sí', 
+            {
+              text: 'Sí',
               onPress: async () => {
                 try {
                   await enableFingerprintLogin(email, password);
@@ -102,7 +103,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
     if (!isFingerprintEnabled) {
       Alert.alert(
-        'Huella no configurada', 
+        'Huella no configurada',
         'Primero debes iniciar sesión con tu email y contraseña para habilitar el login con huella'
       );
       return;
@@ -118,7 +119,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
@@ -130,8 +131,11 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
         >
           <View style={styles.headerOverlay}>
             <View style={styles.logoContainer}>
-              <Icon name="subway" size={60} color="#FFFFFF" />
-              <Text style={styles.logoText}>METRO</Text>
+              <Image
+                source={require('../../assets/images/MontaoRD.png')}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
             </View>
           </View>
         </ImageBackground>
@@ -167,24 +171,24 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
               onPress={() => setShowPassword(!showPassword)}
               disabled={isLoading || isCheckingFingerprint}
             >
-              <Icon 
-                name={showPassword ? 'eye-outline' : 'eye-off-outline'} 
-                size={24} 
-                color="#9CA3AF" 
+              <Icon
+                name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                size={24}
+                color="#9CA3AF"
               />
             </TouchableOpacity>
           </View>
 
           {/* ✅ Botón de huella solo si está habilitada */}
           {isFingerprintAvailable && isFingerprintEnabled && (
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.biometricButton}
               onPress={handleBiometric}
               disabled={isLoading || isCheckingFingerprint}
             >
-              <Icon 
-                name="finger-print" 
-                size={24} 
+              <Icon
+                name="finger-print"
+                size={24}
                 color="#3B82F6"
               />
               <Text style={[styles.biometricText, { color: '#3B82F6' }]}>
@@ -193,9 +197,9 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
-              styles.loginButton, 
+              styles.loginButton,
               (isLoading || isCheckingFingerprint) && styles.loginButtonDisabled
             ]}
             onPress={handleLogin}
@@ -212,7 +216,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             <View style={styles.divider} />
           </View>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.googleButton}
             onPress={handleGoogleLogin}
             disabled={isLoading || isCheckingFingerprint}
@@ -222,7 +226,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
           <View style={styles.registerContainer}>
             <Text style={styles.registerText}>¿No tienes cuenta? </Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => navigation.navigate('Register')}
               disabled={isLoading || isCheckingFingerprint}
             >
@@ -242,7 +246,7 @@ const styles = StyleSheet.create({
   headerImage: { resizeMode: 'cover' },
   headerOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
   logoContainer: { alignItems: 'center' },
-  logoText: { fontSize: 32, fontWeight: 'bold', color: '#FFFFFF', marginTop: 8, letterSpacing: 4 },
+  logoImage: { width: 600, height: 250, tintColor: '#FFFFFF', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.5, shadowRadius: 4, elevation: 5 },
   formContainer: { flex: 1, paddingHorizontal: 24, paddingTop: 32, backgroundColor: '#FFFFFF', borderTopLeftRadius: 30, borderTopRightRadius: 30, marginTop: -30, shadowColor: '#000', shadowOffset: { width: 0, height: -3 }, shadowOpacity: 0.1, shadowRadius: 5, elevation: 8 },
   inputContainer: { marginBottom: 16, position: 'relative' },
   input: { backgroundColor: '#F9FAFB', borderRadius: 12, padding: 16, fontSize: 16, color: '#111827', borderWidth: 1, borderColor: '#E5E7EB' },

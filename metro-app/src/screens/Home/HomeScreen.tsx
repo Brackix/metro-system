@@ -64,7 +64,6 @@ const PulseRing = ({ delay }: { delay: number }) => {
   );
 };
 
-
 const AnimatedCardBackground = () => {
   const moveAnim1 = useRef(new Animated.Value(0)).current;
   const moveAnim2 = useRef(new Animated.Value(0)).current;
@@ -117,45 +116,44 @@ const AnimatedCardBackground = () => {
 
   return (
     <View style={styles.cardAnimatedBackground}>
-      <Animated.View 
+      <Animated.View
         style={[
           styles.animatedLine,
-          { 
+          {
             transform: [
               { translateX: translateX1 },
               { rotate: '45deg' }
-            ] 
+            ]
           }
-        ]} 
+        ]}
       />
-      <Animated.View 
+      <Animated.View
         style={[
           styles.animatedLine,
-          { 
+          {
             transform: [
               { translateX: translateX2 },
               { rotate: '45deg' }
             ],
             top: '30%',
           }
-        ]} 
+        ]}
       />
-      <Animated.View 
+      <Animated.View
         style={[
           styles.animatedLine,
-          { 
+          {
             transform: [
               { translateX: translateX3 },
               { rotate: '45deg' }
             ],
             top: '60%',
           }
-        ]} 
+        ]}
       />
     </View>
   );
 };
-
 
 export default function HomeScreen({ navigation }: any) {
   const [showMapModal, setShowMapModal] = useState(false);
@@ -204,38 +202,35 @@ export default function HomeScreen({ navigation }: any) {
 
   useEffect(() => {
     checkNFCAvailability();
-    
+
     return () => {
-      NfcManager.cancelTechnologyRequest().catch(() => {});
+      NfcManager.cancelTechnologyRequest().catch(() => { });
     };
   }, []);
 
   const handleStationSelect = (station: any) => {
     console.log('🎯 Estación seleccionada:', station);
-    
+
     setSearchQuery('');
     setShowStationDropdown(false);
-    
-    // Navega al tab "Navegar"
+
     navigation.navigate('Navegar', {
       destinationStation: station,
       executeRoute: true,
     });
   };
 
-
-
   const checkNFCAvailability = async () => {
     try {
       const supported = await NfcManager.isSupported();
-      
+
       if (!supported) {
         setNfcSupported(false);
         return;
       }
-      
+
       setNfcSupported(true);
-      
+
       try {
         await NfcManager.start();
         const enabled = await NfcManager.isEnabled();
@@ -287,7 +282,7 @@ export default function HomeScreen({ navigation }: any) {
       await NfcManager.requestTechnology([NfcTech.Ndef, NfcTech.NfcA, NfcTech.IsoDep]);
 
       const tag = await NfcManager.getTag();
-      
+
       if (tag) {
         const serialNumber = tag.id;
         console.log('📱 NFC Tag detected:', serialNumber);
@@ -295,19 +290,18 @@ export default function HomeScreen({ navigation }: any) {
         await NfcManager.cancelTechnologyRequest();
         setIsScanning(false);
 
-        // Check if this is the special card that triggers registration
-        if (serialNumber === '9A6F2099') {
+        if (serialNumber === '057E0968B864E9') {
           console.log('🎯 Special card detected! Sending registration...');
-          
+
           const payload = {
             nfcuid: selectedCard.nfcuid,
             reqType: 'phone',
-            stationid: 97,
+            stationid: 1,
           };
-          
+
           console.log('📤 Payload:', payload);
           console.log('🌐 API URL:', `${API_URL}/cardusage/registerTap`);
-          
+
           try {
             const response = await fetch(`${API_URL}/cardusage/registerTap`, {
               method: 'POST',
@@ -319,11 +313,10 @@ export default function HomeScreen({ navigation }: any) {
 
             console.log('📥 Response status:', response.status);
             console.log('📥 Response ok:', response.ok);
-            
+
             const responseText = await response.text();
             console.log('📥 Response body:', responseText);
 
-            // Parse the response
             let responseData;
             try {
               responseData = JSON.parse(responseText);
@@ -333,9 +326,8 @@ export default function HomeScreen({ navigation }: any) {
 
             if (response.ok && responseData.success) {
               Alert.alert('Éxito', 'Pase completado exitosamente');
-              
+
             } else {
-              // Show the specific error message from the backend
               const errorMessage = responseData.error || responseData.message || 'No se pudo completar el pase';
               Alert.alert('Error', errorMessage);
             }
@@ -347,8 +339,7 @@ export default function HomeScreen({ navigation }: any) {
         }
 
         console.log('💳 Normal card flow - showing payment confirmation');
-        
-        // Normal card detection flow
+
         Alert.alert(
           'Tarjeta Detectada',
           `Número de Serie: ${serialNumber}\n\n¿Proceder con el pago?`,
@@ -364,8 +355,8 @@ export default function HomeScreen({ navigation }: any) {
     } catch (error: any) {
       console.error('❌ NFC Scan error:', error);
       setIsScanning(false);
-      await NfcManager.cancelTechnologyRequest().catch(() => {});
-      
+      await NfcManager.cancelTechnologyRequest().catch(() => { });
+
       if (error.message && !error.message.includes('cancelled')) {
         Alert.alert('Error', `No se pudo leer la tarjeta NFC\n\n${error.message}`);
       }
@@ -426,22 +417,53 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} nestedScrollEnabled={true}>
-        <View style={styles.headerImage}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
+        accessible={false}
+      >
+        {/* Header con accesibilidad */}
+        <View
+          style={styles.headerImage}
+          accessible={true}
+          accessibilityLabel="Bienvenido a MontaoRD, Tu App de Metro"
+          accessibilityRole="header"
+        >
           <Image
             source={require('../../assets/images/MetroFondo.jpg')}
             style={styles.backgroundImage}
             contentFit="cover"
             cachePolicy="disk"
-            placeholder={{ blurhash: 'LKN]Rv%2Tw=w]~RBVZRi};RPxuwH' }} 
+            placeholder={{ blurhash: 'LKN]Rv%2Tw=w]~RBVZRi};RPxuwH' }}
+            accessible={false}
           />
           <View style={styles.headerOverlay}>
-            <Text style={styles.welcomeText}>Bienvenido a</Text>
-            <Text style={styles.stationName}>MetroApp</Text>
-            <Text style={styles.stationName}>Tu App de Metro</Text>
-            <TouchableOpacity 
+            <Text
+              style={styles.welcomeText}
+              accessible={false}
+            >
+              Bienvenido a
+            </Text>
+            <Text
+              style={styles.stationName}
+              accessible={false}
+            >
+              MontaoRD
+            </Text>
+            <Text
+              style={styles.stationName}
+              accessible={false}
+            >
+              Tu App de Metro
+            </Text>
+            <TouchableOpacity
               style={styles.mapButton}
               onPress={() => setShowMapModal(true)}
+              accessible={true}
+              accessibilityLabel="Abrir mapa del metro"
+              accessibilityHint="Abre el mapa completo de la red del Metro y Teleférico"
+              accessibilityRole="button"
             >
               <Icon name="map-outline" size={20} color="#FFFFFF" />
               <Text style={styles.mapButtonText}>Mapa</Text>
@@ -449,9 +471,21 @@ export default function HomeScreen({ navigation }: any) {
           </View>
         </View>
 
-        <View style={styles.searchContainer}>
-          <View style={styles.searchBox}>
-            <Icon name="subway" size={24} color="#3B82F6" />
+        {/* Barra de búsqueda con accesibilidad */}
+        <View
+          style={styles.searchContainer}
+          accessible={false}
+        >
+          <View
+            style={styles.searchBox}
+            accessible={false}
+          >
+            <Icon
+              name="subway"
+              size={24}
+              color="#3B82F6"
+              accessible={false}
+            />
             <TextInput
               style={styles.searchInput}
               placeholder="¿Donde vas?"
@@ -468,6 +502,10 @@ export default function HomeScreen({ navigation }: any) {
               }}
               autoCorrect={false}
               autoCapitalize="words"
+              accessible={true}
+              accessibilityLabel="Buscar estación de destino"
+              accessibilityHint="Escribe el nombre de la estación a la que quieres ir"
+              accessibilityRole="search"
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity
@@ -476,12 +514,16 @@ export default function HomeScreen({ navigation }: any) {
                   setShowStationDropdown(false);
                 }}
                 style={styles.clearButton}
+                accessible={true}
+                accessibilityLabel="Limpiar búsqueda"
+                accessibilityHint="Borra el texto de búsqueda"
+                accessibilityRole="button"
               >
                 <Icon name="close-circle" size={20} color="#9CA3AF" />
               </TouchableOpacity>
             )}
           </View>
-          
+
           <StationSearchDropdown
             searchQuery={searchQuery}
             onStationSelect={handleStationSelect}
@@ -489,70 +531,138 @@ export default function HomeScreen({ navigation }: any) {
           />
         </View>
 
-        <View style={styles.actionsContainer}>
-          <TouchableOpacity 
+        {/* Botones de acciones con accesibilidad */}
+        <View
+          style={styles.actionsContainer}
+          accessible={false}
+        >
+          <TouchableOpacity
             style={styles.actionButton}
             onPress={() => setShowRechargeModal(true)}
+            accessible={true}
+            accessibilityLabel="Recarga de tarjeta"
+            accessibilityHint="Abre el menú para recargar saldo en tus tarjetas de metro"
+            accessibilityRole="button"
           >
-            <View style={styles.actionIconContainer}>
+            <View
+              style={styles.actionIconContainer}
+              accessible={false}
+            >
               <Icon name="add-circle" size={28} color="#3B82F6" />
             </View>
             <Text style={styles.actionText}>Recarga</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionButton}
             onPress={handleGoToHistory}
+            accessible={true}
+            accessibilityLabel="Historial de viajes"
+            accessibilityHint="Ver tu historial completo de viajes y actividades"
+            accessibilityRole="button"
           >
-            <View style={styles.actionIconContainer}>
+            <View
+              style={styles.actionIconContainer}
+              accessible={false}
+            >
               <Icon name="time" size={28} color="#3B82F6" />
             </View>
             <Text style={styles.actionText}>Historial</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionButton}
             onPress={() => setShowScanModal(true)}
+            accessible={true}
+            accessibilityLabel="Pasar por torniquete"
+            accessibilityHint="Usa NFC para pasar por el torniquete del metro"
+            accessibilityRole="button"
           >
-            <View style={styles.actionIconContainer}>
+            <View
+              style={styles.actionIconContainer}
+              accessible={false}
+            >
               <Icon name="qr-code" size={28} color="#3B82F6" />
             </View>
             <Text style={styles.actionText}>Pasar</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionButton}
             onPress={() => setShowReceiptsModal(true)}
+            accessible={true}
+            accessibilityLabel="Recibos de recarga"
+            accessibilityHint="Consulta tus recibos de recargas anteriores"
+            accessibilityRole="button"
           >
-            <View style={styles.actionIconContainer}>
+            <View
+              style={styles.actionIconContainer}
+              accessible={false}
+            >
               <Icon name="receipt" size={28} color="#3B82F6" />
             </View>
             <Text style={styles.actionText}>Recibos</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Actividad Reciente</Text>
-          <Text style={styles.sectionSubtitle}>Tus últimos movimientos</Text>
+        {/* Sección de actividad reciente con accesibilidad */}
+        <View
+          style={styles.section}
+          accessible={false}
+        >
+          <Text
+            style={styles.sectionTitle}
+            accessible={true}
+            accessibilityRole="header"
+          >
+            Actividad Reciente
+          </Text>
+          <Text
+            style={styles.sectionSubtitle}
+            accessible={true}
+          >
+            Tus últimos movimientos
+          </Text>
 
           {activities.slice(0, 4).map((activity) => (
-            <View key={activity.id} style={styles.activityCard}>
-              <View style={[styles.activityIcon, { backgroundColor: activity.iconBg }]}>
+            <TouchableOpacity
+              key={activity.id}
+              style={styles.activityCard}
+              accessible={true}
+              accessibilityLabel={`${activity.title}, ${activity.subtitle}, ${activity.date}, ${activity.amount > 0 ? 'Recarga de' : 'Gasto de'} ${Math.abs(activity.amount)} pesos dominicanos`}
+              accessibilityHint="Toca para ver más detalles de esta actividad"
+              accessibilityRole="button"
+            >
+              <View
+                style={[styles.activityIcon, { backgroundColor: activity.iconBg }]}
+                accessible={false}
+              >
                 <Icon name={activity.icon} size={24} color={activity.iconColor} />
               </View>
-              <View style={styles.activityInfo}>
+              <View
+                style={styles.activityInfo}
+                accessible={false}
+              >
                 <Text style={styles.activityTitle}>{activity.title}</Text>
                 <Text style={styles.activitySubtitle}>{activity.subtitle}</Text>
                 <Text style={styles.activityTime}>{activity.date}</Text>
               </View>
-              <Text style={[styles.activityAmount, activity.amount > 0 && styles.activityAmountPositive]}>
+              <Text
+                style={[styles.activityAmount, activity.amount > 0 && styles.activityAmountPositive]}
+                accessible={false}
+              >
                 {activity.amount > 0 ? '+' : ''}DOP {Math.abs(activity.amount)}
               </Text>
-            </View>
+            </TouchableOpacity>
           ))}
 
           {activities.length === 0 && (
-            <View style={styles.emptyState}>
+            <View
+              style={styles.emptyState}
+              accessible={true}
+              accessibilityLabel="No hay actividad reciente"
+              accessibilityRole="text"
+            >
               <Icon name="document-text-outline" size={48} color="#9CA3AF" />
               <Text style={styles.emptyStateText}>No hay actividad reciente</Text>
             </View>
@@ -562,47 +672,87 @@ export default function HomeScreen({ navigation }: any) {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Modal del Mapa */}
+      {/* Modal del Mapa con accesibilidad */}
       <Modal
         visible={showMapModal}
         transparent={true}
         animationType="slide"
         onRequestClose={() => setShowMapModal(false)}
+        accessible={true}
+        accessibilityViewIsModal={true}
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Mapa del Metro</Text>
-              <TouchableOpacity onPress={() => setShowMapModal(false)}>
+              <Text
+                style={styles.modalTitle}
+                accessible={true}
+                accessibilityRole="header"
+              >
+                Mapa del Metro
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowMapModal(false)}
+                accessible={true}
+                accessibilityLabel="Cerrar mapa"
+                accessibilityHint="Cierra la ventana del mapa"
+                accessibilityRole="button"
+              >
                 <Icon name="close" size={28} color={COLORS.textPrimary} />
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.modalSubtitle}>Red del Metro y Teleférico de Santo Domingo</Text>
+            <Text
+              style={styles.modalSubtitle}
+              accessible={true}
+            >
+              Red del Metro y Teleférico de Santo Domingo
+            </Text>
 
-              <ScrollView 
-                style={styles.scrollView} 
-                showsVerticalScrollIndicator={false}
-                nestedScrollEnabled={true}  // ← AGREGAR ESTO
-              >
+            <ScrollView
+              style={styles.scrollView}
+              showsVerticalScrollIndicator={false}
+              nestedScrollEnabled={true}
+              accessible={false}
+            >
               <Image
                 source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/6/67/Mapa_de_Red_del_Metro_y_Telef%C3%A9rico_de_Santo_Domingo.jpg' }}
                 style={styles.mapImage}
                 contentFit="contain"
                 cachePolicy="memory-disk"
+                accessible={true}
+                accessibilityLabel="Mapa de la red del Metro y Teleférico de Santo Domingo mostrando las líneas 1, 2 y Teleférico con todas sus estaciones"
               />
             </ScrollView>
 
-            <View style={styles.legend}>
-              <View style={styles.legendItem}>
+            <View
+              style={styles.legend}
+              accessible={false}
+            >
+              <View
+                style={styles.legendItem}
+                accessible={true}
+                accessibilityLabel="Línea 1 de color azul"
+                accessibilityRole="text"
+              >
                 <View style={[styles.legendColor, { backgroundColor: COLORS.line1 }]} />
                 <Text style={styles.legendText}>Línea 1</Text>
               </View>
-              <View style={styles.legendItem}>
+              <View
+                style={styles.legendItem}
+                accessible={true}
+                accessibilityLabel="Línea 2 de color rojo"
+                accessibilityRole="text"
+              >
                 <View style={[styles.legendColor, { backgroundColor: COLORS.line2 }]} />
                 <Text style={styles.legendText}>Línea 2</Text>
               </View>
-              <View style={styles.legendItem}>
+              <View
+                style={styles.legendItem}
+                accessible={true}
+                accessibilityLabel="Teleférico de color verde"
+                accessibilityRole="text"
+              >
                 <View style={[styles.legendColor, { backgroundColor: '#10B981' }]} />
                 <Text style={styles.legendText}>Teleférico</Text>
               </View>
@@ -611,7 +761,7 @@ export default function HomeScreen({ navigation }: any) {
         </View>
       </Modal>
 
-      {/* Modal de Pasar con NFC */}
+      {/* Modal de Pasar con NFC con accesibilidad */}
       <Modal
         visible={showScanModal}
         transparent={true}
@@ -621,29 +771,49 @@ export default function HomeScreen({ navigation }: any) {
           setShowScanModal(false);
           setSelectedCard(null);
         }}
+        accessible={true}
+        accessibilityViewIsModal={true}
       >
         <View style={styles.scanModalContainer}>
           <View style={styles.scanModalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Selecciona tu Tarjeta</Text>
-              <TouchableOpacity onPress={() => {
-                stopNFCScan();
-                setShowScanModal(false);
-                setSelectedCard(null);
-              }}>
+              <Text
+                style={styles.modalTitle}
+                accessible={true}
+                accessibilityRole="header"
+              >
+                Selecciona tu Tarjeta
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  stopNFCScan();
+                  setShowScanModal(false);
+                  setSelectedCard(null);
+                }}
+                accessible={true}
+                accessibilityLabel="Cerrar selección de tarjeta"
+                accessibilityHint="Cancela la selección de tarjeta y cierra la ventana"
+                accessibilityRole="button"
+              >
                 <Icon name="close" size={28} color={COLORS.textPrimary} />
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.scanInstructions}>
+            <Text
+              style={styles.scanInstructions}
+              accessible={true}
+            >
               Selecciona la tarjeta que usarás para pasar por el torniquete
             </Text>
 
             {!selectedCard ? (
-              <ScrollView style={styles.cardsScrollView} showsVerticalScrollIndicator={false}>
+              <ScrollView
+                style={styles.cardsScrollView}
+                showsVerticalScrollIndicator={false}
+                accessible={false}
+              >
                 {cards && cards.length > 0 ? (
                   cards.filter(card => card?.status === 'active').map((card) => {
-                    // ✅ Extraer valores de forma segura
                     const cardStatus = card?.status || 'unknown';
                     const cardBalance = card?.balance || 0;
                     const cardAlias = card?.alias || 'Sin nombre';
@@ -655,15 +825,23 @@ export default function HomeScreen({ navigation }: any) {
                         style={styles.cardSelectOption}
                         onPress={() => handleSelectCard(card)}
                         activeOpacity={0.8}
+                        accessible={true}
+                        accessibilityLabel={`Tarjeta ${cardAlias}, estado ${statusText}, saldo ${cardBalance} pesos dominicanos`}
+                        accessibilityHint="Selecciona esta tarjeta para pasar por el torniquete"
+                        accessibilityRole="button"
                       >
                         <Image
                           source={{ uri: 'https://www.opret.gob.do/Images/Opret%202023%20-%20Banner%20Tarjeta%20de%20Carga%20%C3%9Anica-02.jpg' }}
                           style={StyleSheet.absoluteFill}
                           contentFit="cover"
                           cachePolicy="memory-disk"
+                          accessible={false}
                         />
                         <View style={styles.miniCardOverlay} />
-                        <View style={styles.miniCardContent}>
+                        <View
+                          style={styles.miniCardContent}
+                          accessible={false}
+                        >
                           <View>
                             <Text style={styles.miniCardType}>{statusText}</Text>
                             <Text style={styles.miniCardBalance}>DOP {cardBalance}</Text>
@@ -675,17 +853,30 @@ export default function HomeScreen({ navigation }: any) {
                     );
                   })
                 ) : (
-                  <View style={styles.emptyState}>
+                  <View
+                    style={styles.emptyState}
+                    accessible={true}
+                    accessibilityLabel="No hay tarjetas activas"
+                    accessibilityRole="text"
+                  >
                     <Text style={styles.emptyStateText}>No hay tarjetas activas</Text>
                   </View>
                 )}
               </ScrollView>
             ) : (
               <View style={styles.selectedCardPreview}>
-                <View style={styles.bigCard}>
+                <View
+                  style={styles.bigCard}
+                  accessible={true}
+                  accessibilityLabel={`Tarjeta seleccionada ${selectedCard?.alias || 'Sin nombre'}, saldo ${selectedCard?.balance || 0} pesos dominicanos`}
+                  accessibilityRole="text"
+                >
                   <AnimatedCardBackground />
                   <View style={styles.bigCardOverlay} />
-                  <View style={styles.bigCardContent}>
+                  <View
+                    style={styles.bigCardContent}
+                    accessible={false}
+                  >
                     <View>
                       <Text style={styles.bigCardLabel}>Tarjeta Seleccionada</Text>
                       <Text style={styles.bigCardBalance}>DOP {selectedCard?.balance || 0}</Text>
@@ -697,30 +888,42 @@ export default function HomeScreen({ navigation }: any) {
                   </View>
                 </View>
 
-                <View style={styles.pulseContainer}>
+                <View
+                  style={styles.pulseContainer}
+                  accessible={true}
+                  accessibilityLabel={isScanning ? 'Esperando lectura NFC' : 'Preparando lector NFC'}
+                  accessibilityRole="progressbar"
+                >
                   <PulseRing delay={0} />
                   <PulseRing delay={400} />
                   <PulseRing delay={800} />
                   <PulseRing delay={1200} />
-                  
+
                   <View style={styles.nfcIconContainer}>
                     <Icon name="radio-button-on" size={70} color={COLORS.white} />
                   </View>
                 </View>
 
-                <Text style={styles.scanText}>
-                  {isScanning 
-                    ? 'Acerca tu tarjeta al lector NFC...' 
+                <Text
+                  style={styles.scanText}
+                  accessible={true}
+                >
+                  {isScanning
+                    ? 'Acerca tu tarjeta al lector NFC...'
                     : 'Preparando lector NFC...'}
                 </Text>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.cancelButton}
                   onPress={() => {
                     stopNFCScan();
                     setSelectedCard(null);
                     setShowScanModal(false);
                   }}
+                  accessible={true}
+                  accessibilityLabel="Cancelar"
+                  accessibilityHint="Cancela el escaneo NFC y regresa"
+                  accessibilityRole="button"
                 >
                   <Text style={styles.cancelButtonText}>Cancelar</Text>
                 </TouchableOpacity>
@@ -730,30 +933,50 @@ export default function HomeScreen({ navigation }: any) {
         </View>
       </Modal>
 
-      {/* Modal de Recarga */}
+      {/* Modal de Recarga con accesibilidad */}
       <Modal
         visible={showRechargeModal}
         transparent={true}
         animationType="slide"
         onRequestClose={() => setShowRechargeModal(false)}
+        accessible={true}
+        accessibilityViewIsModal={true}
       >
         <View style={styles.scanModalContainer}>
           <View style={styles.scanModalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Selecciona tu Tarjeta</Text>
-              <TouchableOpacity onPress={() => setShowRechargeModal(false)}>
+              <Text
+                style={styles.modalTitle}
+                accessible={true}
+                accessibilityRole="header"
+              >
+                Selecciona tu Tarjeta
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowRechargeModal(false)}
+                accessible={true}
+                accessibilityLabel="Cerrar recarga"
+                accessibilityHint="Cierra la ventana de recarga de tarjeta"
+                accessibilityRole="button"
+              >
                 <Icon name="close" size={28} color={COLORS.textPrimary} />
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.scanInstructions}>
+            <Text
+              style={styles.scanInstructions}
+              accessible={true}
+            >
               Elige la tarjeta que deseas recargar
             </Text>
 
-            <ScrollView style={styles.cardsScrollView} showsVerticalScrollIndicator={false}>
+            <ScrollView
+              style={styles.cardsScrollView}
+              showsVerticalScrollIndicator={false}
+              accessible={false}
+            >
               {cards && cards.length > 0 ? (
                 cards.map((card) => {
-                  // ✅ Extraer valores de forma segura
                   const cardStatus = card?.status || 'unknown';
                   const cardBalance = card?.balance || 0;
                   const cardAlias = card?.alias || 'Sin nombre';
@@ -765,15 +988,23 @@ export default function HomeScreen({ navigation }: any) {
                       style={styles.cardSelectOption}
                       onPress={() => handleSelectCardToRecharge(card)}
                       activeOpacity={0.8}
+                      accessible={true}
+                      accessibilityLabel={`Recargar tarjeta ${cardAlias}, estado ${statusText}, saldo actual ${cardBalance} pesos dominicanos`}
+                      accessibilityHint="Selecciona esta tarjeta para recargar saldo"
+                      accessibilityRole="button"
                     >
                       <Image
                         source={{ uri: 'https://www.opret.gob.do/Images/Opret%202023%20-%20Banner%20Tarjeta%20de%20Carga%20%C3%9Anica-02.jpg' }}
                         style={StyleSheet.absoluteFill}
                         contentFit="cover"
                         cachePolicy="memory-disk"
+                        accessible={false}
                       />
                       <View style={styles.miniCardOverlay} />
-                      <View style={styles.miniCardContent}>
+                      <View
+                        style={styles.miniCardContent}
+                        accessible={false}
+                      >
                         <View>
                           <Text style={styles.miniCardType}>{statusText}</Text>
                           <Text style={styles.miniCardBalance}>DOP {cardBalance}</Text>
@@ -785,7 +1016,12 @@ export default function HomeScreen({ navigation }: any) {
                   );
                 })
               ) : (
-                <View style={styles.emptyState}>
+                <View
+                  style={styles.emptyState}
+                  accessible={true}
+                  accessibilityLabel="No hay tarjetas registradas"
+                  accessibilityRole="text"
+                >
                   <Text style={styles.emptyStateText}>No hay tarjetas registradas</Text>
                 </View>
               )}
@@ -794,30 +1030,60 @@ export default function HomeScreen({ navigation }: any) {
         </View>
       </Modal>
 
-      {/* Modal de Recibos */}
+      {/* Modal de Recibos con accesibilidad */}
       <Modal
         visible={showReceiptsModal}
         transparent={true}
         animationType="slide"
         onRequestClose={() => setShowReceiptsModal(false)}
+        accessible={true}
+        accessibilityViewIsModal={true}
       >
         <View style={styles.scanModalContainer}>
           <View style={styles.scanModalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Recibos de Recarga</Text>
-              <TouchableOpacity onPress={() => setShowReceiptsModal(false)}>
+              <Text
+                style={styles.modalTitle}
+                accessible={true}
+                accessibilityRole="header"
+              >
+                Recibos de Recarga
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowReceiptsModal(false)}
+                accessible={true}
+                accessibilityLabel="Cerrar recibos"
+                accessibilityHint="Cierra la ventana de recibos"
+                accessibilityRole="button"
+              >
                 <Icon name="close" size={28} color={COLORS.textPrimary} />
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.scanInstructions}>
+            <Text
+              style={styles.scanInstructions}
+              accessible={true}
+            >
               Historial de todas tus recargas
             </Text>
 
-            <ScrollView style={styles.receiptsScrollView} showsVerticalScrollIndicator={false}>
+            <ScrollView
+              style={styles.receiptsScrollView}
+              showsVerticalScrollIndicator={false}
+              accessible={false}
+            >
               {receipts.map((receipt) => (
-                <View key={receipt.id} style={styles.receiptCard}>
-                  <View style={styles.receiptHeader}>
+                <View
+                  key={receipt.id}
+                  style={styles.receiptCard}
+                  accessible={true}
+                  accessibilityLabel={`${receipt.type} de ${receipt.amount} pesos dominicanos, ${receipt.date}, tarjeta ${receipt.card}, método ${receipt.method}, ID de transacción ${receipt.transactionId}`}
+                  accessibilityRole="summary"
+                >
+                  <View
+                    style={styles.receiptHeader}
+                    accessible={false}
+                  >
                     <View style={styles.receiptIconContainer}>
                       <Icon name="checkmark-circle" size={24} color="#10B981" />
                     </View>
@@ -827,10 +1093,13 @@ export default function HomeScreen({ navigation }: any) {
                     </View>
                     <Text style={styles.receiptAmount}>+DOP {receipt.amount}</Text>
                   </View>
-                  
+
                   <View style={styles.receiptDivider} />
-                  
-                  <View style={styles.receiptDetails}>
+
+                  <View
+                    style={styles.receiptDetails}
+                    accessible={false}
+                  >
                     <View style={styles.receiptDetailRow}>
                       <Text style={styles.receiptDetailLabel}>Tarjeta:</Text>
                       <Text style={styles.receiptDetailValue}>{receipt.card}</Text>
@@ -845,7 +1114,13 @@ export default function HomeScreen({ navigation }: any) {
                     </View>
                   </View>
 
-                  <TouchableOpacity style={styles.downloadButton}>
+                  <TouchableOpacity
+                    style={styles.downloadButton}
+                    accessible={true}
+                    accessibilityLabel="Descargar recibo"
+                    accessibilityHint="Descarga una copia de este recibo"
+                    accessibilityRole="button"
+                  >
                     <Icon name="download-outline" size={18} color="#3B82F6" />
                     <Text style={styles.downloadButtonText}>Descargar Recibo</Text>
                   </TouchableOpacity>
@@ -857,28 +1132,48 @@ export default function HomeScreen({ navigation }: any) {
         </View>
       </Modal>
 
-      {/* Modal de Historial */}
+      {/* Modal de Historial con accesibilidad */}
       <Modal
         visible={showHistoryModal}
         transparent={true}
         animationType="slide"
         onRequestClose={() => setShowHistoryModal(false)}
+        accessible={true}
+        accessibilityViewIsModal={true}
       >
         <View style={styles.scanModalContainer}>
           <View style={styles.scanModalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Historial de Viajes</Text>
-              <TouchableOpacity onPress={() => setShowHistoryModal(false)}>
+              <Text
+                style={styles.modalTitle}
+                accessible={true}
+                accessibilityRole="header"
+              >
+                Historial de Viajes
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowHistoryModal(false)}
+                accessible={true}
+                accessibilityLabel="Cerrar historial"
+                accessibilityHint="Cierra la ventana del historial de viajes"
+                accessibilityRole="button"
+              >
                 <Icon name="close" size={28} color={COLORS.textPrimary} />
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.scanInstructions}>
+            <Text
+              style={styles.scanInstructions}
+              accessible={true}
+            >
               Información de viajes y actividades recientes
             </Text>
 
-            <ScrollView style={styles.receiptsScrollView} showsVerticalScrollIndicator={false}>
-              {/* Mock data for travel history - replace with API data later */}
+            <ScrollView
+              style={styles.receiptsScrollView}
+              showsVerticalScrollIndicator={false}
+              accessible={false}
+            >
               {[
                 {
                   id: '1',
@@ -916,58 +1211,76 @@ export default function HomeScreen({ navigation }: any) {
                   method: 'Pago Móvil',
                   card: '•••• 7891',
                 },
-              ].map((item) => (
-                <View key={item.id} style={styles.receiptCard}>
-                  <View style={styles.receiptHeader}>
-                    <View style={styles.receiptIconContainer}>
-                      <Icon
-                        name={item.type === 'Viaje' ? 'subway' : 'add-circle'}
-                        size={24}
-                        color={item.type === 'Viaje' ? '#8B5CF6' : '#10B981'}
-                      />
-                    </View>
-                    <View style={styles.receiptHeaderInfo}>
-                      <Text style={styles.receiptType}>{item.type}</Text>
-                      <Text style={styles.receiptDate}>{item.date}</Text>
-                    </View>
-                    <Text style={[styles.receiptAmount, item.amount > 0 ? styles.receiptAmountPositive : styles.receiptAmountNegative]}>
-                      {item.amount > 0 ? '+' : ''}DOP {Math.abs(item.amount)}
-                    </Text>
-                  </View>
+              ].map((item) => {
+                const accessibilityText = item.type === 'Viaje'
+                  ? `${item.type} en ${item.line}, desde ${item.from} hasta ${item.to}, ${item.date}, ${Math.abs(item.amount)} pesos dominicanos, tarjeta ${item.card}`
+                  : `${item.type} de ${item.amount} pesos dominicanos, ${item.date}, método ${item.method}, tarjeta ${item.card}`;
 
-                  <View style={styles.receiptDivider} />
+                return (
+                  <View
+                    key={item.id}
+                    style={styles.receiptCard}
+                    accessible={true}
+                    accessibilityLabel={accessibilityText}
+                    accessibilityRole="summary"
+                  >
+                    <View
+                      style={styles.receiptHeader}
+                      accessible={false}
+                    >
+                      <View style={styles.receiptIconContainer}>
+                        <Icon
+                          name={item.type === 'Viaje' ? 'subway' : 'add-circle'}
+                          size={24}
+                          color={item.type === 'Viaje' ? '#8B5CF6' : '#10B981'}
+                        />
+                      </View>
+                      <View style={styles.receiptHeaderInfo}>
+                        <Text style={styles.receiptType}>{item.type}</Text>
+                        <Text style={styles.receiptDate}>{item.date}</Text>
+                      </View>
+                      <Text style={[styles.receiptAmount, item.amount > 0 ? styles.receiptAmountPositive : styles.receiptAmountNegative]}>
+                        {item.amount > 0 ? '+' : ''}DOP {Math.abs(item.amount)}
+                      </Text>
+                    </View>
 
-                  <View style={styles.receiptDetails}>
-                    {item.type === 'Viaje' ? (
-                      <>
-                        <View style={styles.receiptDetailRow}>
-                          <Text style={styles.receiptDetailLabel}>Línea:</Text>
-                          <Text style={styles.receiptDetailValue}>{item.line}</Text>
-                        </View>
-                        <View style={styles.receiptDetailRow}>
-                          <Text style={styles.receiptDetailLabel}>De:</Text>
-                          <Text style={styles.receiptDetailValue}>{item.from}</Text>
-                        </View>
-                        <View style={styles.receiptDetailRow}>
-                          <Text style={styles.receiptDetailLabel}>A:</Text>
-                          <Text style={styles.receiptDetailValue}>{item.to}</Text>
-                        </View>
-                      </>
-                    ) : (
-                      <>
-                        <View style={styles.receiptDetailRow}>
-                          <Text style={styles.receiptDetailLabel}>Método:</Text>
-                          <Text style={styles.receiptDetailValue}>{item.method}</Text>
-                        </View>
-                      </>
-                    )}
-                    <View style={styles.receiptDetailRow}>
-                      <Text style={styles.receiptDetailLabel}>Tarjeta:</Text>
-                      <Text style={styles.receiptDetailValue}>{item.card}</Text>
+                    <View style={styles.receiptDivider} />
+
+                    <View
+                      style={styles.receiptDetails}
+                      accessible={false}
+                    >
+                      {item.type === 'Viaje' ? (
+                        <>
+                          <View style={styles.receiptDetailRow}>
+                            <Text style={styles.receiptDetailLabel}>Línea:</Text>
+                            <Text style={styles.receiptDetailValue}>{item.line}</Text>
+                          </View>
+                          <View style={styles.receiptDetailRow}>
+                            <Text style={styles.receiptDetailLabel}>De:</Text>
+                            <Text style={styles.receiptDetailValue}>{item.from}</Text>
+                          </View>
+                          <View style={styles.receiptDetailRow}>
+                            <Text style={styles.receiptDetailLabel}>A:</Text>
+                            <Text style={styles.receiptDetailValue}>{item.to}</Text>
+                          </View>
+                        </>
+                      ) : (
+                        <>
+                          <View style={styles.receiptDetailRow}>
+                            <Text style={styles.receiptDetailLabel}>Método:</Text>
+                            <Text style={styles.receiptDetailValue}>{item.method}</Text>
+                          </View>
+                        </>
+                      )}
+                      <View style={styles.receiptDetailRow}>
+                        <Text style={styles.receiptDetailLabel}>Tarjeta:</Text>
+                        <Text style={styles.receiptDetailValue}>{item.card}</Text>
+                      </View>
                     </View>
                   </View>
-                </View>
-              ))}
+                );
+              })}
 
               <View style={{ height: 20 }} />
             </ScrollView>
@@ -977,7 +1290,6 @@ export default function HomeScreen({ navigation }: any) {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },

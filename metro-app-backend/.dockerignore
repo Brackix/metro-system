@@ -1,0 +1,35 @@
+# Dependencies (installed inside container)
+node_modules/
+
+# Build output
+dist/
+
+# Prisma generated client (regenerated inside container)
+src/generated/
+
+# Environment files (passed via compose/env-file)
+.env
+.env.*
+!.env.example
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Documentation
+*.md
+documentation/

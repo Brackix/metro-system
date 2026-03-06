@@ -6,6 +6,7 @@ import cardsRoutes from './cards.routes';
 import cardUsageRoutes from './cardUsage.routes';
 import adminRoutes from './admin.routes';
 import rechargesRoutes from './recharges.routes';
+import omsaStopsRoutes from './omsaStops.routes';
 //Exportar todas las rutas para utilizarlas en src/index.ts
 export {
   stationsRouter,
@@ -15,5 +16,6 @@ export {
   cardsRoutes,
   cardUsageRoutes,
   adminRoutes,
-  rechargesRoutes
+  rechargesRoutes,
+  omsaStopsRoutes
 };

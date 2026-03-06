@@ -5,10 +5,6 @@ const path = require('path');
 const app = express();
 const PORT = 5000;
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
-
 
 // Middleware
 app.use(cors());
@@ -21,19 +17,19 @@ let ultimoEstado = null;
 // Endpoint para recibir validación (POST)
 app.post('/api/validar', (req, res) => {
   const { valido } = req.body;
-  
+
   // Validar que valido sea un booleano
   if (typeof valido !== 'boolean') {
-    return res.status(400).json({ 
-      error: 'El campo "valido" debe ser true o false' 
+    return res.status(400).json({
+      error: 'El campo "valido" debe ser true o false'
     });
   }
-  
+
   // Guardar el estado
   ultimoEstado = valido;
-  
+
   console.log(`Tarjeta ${valido ? 'ACEPTADA' : 'RECHAZADA'}`);
-  
+
   res.json({
     success: true,
     valido: valido,
@@ -50,10 +46,10 @@ app.get('/api/estado', (req, res) => {
       mensaje: 'Esperando validación'
     });
   }
-  
+
   const estado = ultimoEstado;
   ultimoEstado = null; // Limpiar después de consultar
-  
+
   res.json({
     hayEvento: true,
     valido: estado
@@ -73,8 +69,8 @@ app.listen(PORT, '0.0.0.0', () => {
     .flat()
     .filter(addr => addr.family === 'IPv4' && !addr.internal)
     .map(addr => addr.address);
-  
+
   if (addresses.length > 0) {
-    console.log(`🌐 Accesible en red local: <http://${addresses>[0]}:${PORT}`);
+    console.log(`🌐 Accesible en red local: <http://${addresses > [0]}:${PORT}`);
   }
 });

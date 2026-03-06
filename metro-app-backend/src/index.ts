@@ -28,7 +28,8 @@ app.use('/api/cards', routes.cardsRoutes);
 app.use('/api/auth', routes.loginAuthRoutes);
 app.use('/api/cardusage', routes.cardUsageRoutes);
 app.use('/api/admin', routes.adminRoutes);
-app.use('/api/recharges', routes.rechargesRoutes);  // ✅ AGREGAR
+app.use('/api/recharges', routes.rechargesRoutes);
+app.use('/api/omsastops', routes.omsaStopsRoutes);
 
 // ✅ Convierte a número
 const port = Number(process.env.PORT) || 4000;

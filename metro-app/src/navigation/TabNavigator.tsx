@@ -1,7 +1,7 @@
+import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 import HomeScreen from '../screens/Home/HomeScreen';
 import NavigateScreen from '../screens/Navigate/NavigateScreen';
@@ -36,14 +36,14 @@ export default function TabNavigator() {
           fontWeight: '500',
         },
         tabBarIcon: ({ color, size }) => {
-          let iconName = 'home-outline';
+          let iconName: keyof typeof Ionicons.glyphMap = 'home-outline';
           
           if (route.name === 'Inicio') iconName = 'home-outline';
           else if (route.name === 'Tarjeta') iconName = 'card-outline';
           else if (route.name === 'Navegar') iconName = 'navigate-outline';
           else if (route.name === 'Cuenta') iconName = 'person-outline';
           
-          return <Icon name={iconName} size={24} color={color} />;
+          return <Ionicons name={iconName} size={24} color={color} />;
         },
       })}
     >
