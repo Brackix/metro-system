@@ -5,9 +5,9 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  }
+}
 
-  model cards {
+model cards {
   cardid            Int                 @id @default(autoincrement())
   userid            Int
   cardtypeid        Int?
@@ -154,7 +154,6 @@ model adminusers {
   permissions String? @db.VarChar(100)
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model cardusagehistory {
   usageid              Int       @id
   cardid               Int?
@@ -166,4 +165,15 @@ model cardusagehistory {
   validationsuccessful Boolean?
   rejectionreason      String?   @db.VarChar(255)
   usagetype            String?   @db.VarChar(20)
+}
+
+model omsastops {
+  stopid   Int     @id @default(autoincrement())
+  code     String  @db.VarChar(10)
+  name     String? @db.VarChar(100)
+  corridor String? @db.VarChar(10)
+  address  String
+  active   Boolean @default(true)
+  lat      Float?
+  lng      Float?
 }

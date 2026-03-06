@@ -13,8 +13,10 @@ metro-system/
 ├── metro-app-dashboard/        # 🖥️  Admin dashboard (Next.js)
 ├── metroapp-phoneNFChandle/    # 📡 NFC reader companion app (Expo)
 ├── metroapp-web-turnstile/     # 🚪 Web-based turnstile interface (Node.js)
-├── compose.yml                 # 🐳 Docker Compose — orchestrates all services
-├── build.sh                    # 🔨 One-command build script (auto-detects local IP)
+├── compose.yml                 # 🐳 Docker Compose — infrastructure services only
+├── build.sh                    # 🔨 Start infrastructure (auto-detects local IP)
+├── build-apks.sh               # 📱 Build Expo dev APKs locally (one-time)
+├── start-dev.sh                # 🚀 Start Metro dev servers for hot reload
 ├── .env.example                # 📋 Environment variable template
 └── VERSIONS.md                 # 📌 Component version tracking
 ```
@@ -29,11 +31,10 @@ metro-system/
 |------|---------|---------|
 | [Docker](https://docs.docker.com/get-docker/) | ≥ 24.0 | Container runtime |
 | [Docker Compose](https://docs.docker.com/compose/) | ≥ 2.20 | Service orchestration |
+| [Node.js](https://nodejs.org/) | ≥ 20 | Expo dev servers |
+| [Android SDK](https://developer.android.com/studio) | API 35+ | Building Expo APKs |
+| Java JDK | 17+ | Android builds |
 | Bash | ≥ 4.0 | Build scripts |
-
-> [!IMPORTANT]
-> Make sure Docker has at least **6 GB of RAM** allocated. The Android APK build (Gradle) needs ~4 GB of heap.
-> Check this in **Docker Desktop → Settings → Resources**.
 
 ### 1. Clone the repository
 
@@ -42,20 +43,33 @@ git clone https://github.com/Brackix/metro-system.git
 cd metro-system
 ```
 
-### 2. Build & run everything
+### 2. Build development APKs (one-time)
+
+```bash
+./build-apks.sh
+```
+
+This builds debug APKs for both mobile apps and installs them on your connected Android device. You only need to do this **once** (or when native dependencies change).
+
+You can also build them individually:
+
+```bash
+./build-apks.sh metro-app    # just the passenger app
+./build-apks.sh nfc           # just the NFC receiver
+```
+
+### 3. Start infrastructure services
 
 ```bash
 ./build.sh
 ```
 
-That's it. This single command will:
+This starts the infrastructure via Docker Compose:
 
-1. **Auto-detect** your machine's local network IP (e.g. `192.168.20.30`)
-2. **Start PostgreSQL** and wait until it's healthy
-3. **Start the backend API** (Express + Prisma) on port `4000`, connected to the database
-4. **Start the dashboard** (Next.js) on port `3000`
-5. **Build the Expo Android APK** with `API_URL=http://<your-ip>:4000/api` baked in
-6. **Output the APK** to a Docker volume for extraction
+1. **PostgreSQL** database on port `5432`
+2. **Backend API** (Express + Prisma) on port `4000`
+3. **Dashboard** (Next.js) on port `3000`
+4. **Web Turnstile** on port `5000`
 
 To run in **detached mode** (background):
 
@@ -63,9 +77,19 @@ To run in **detached mode** (background):
 ./build.sh -d
 ```
 
+### 4. Start Expo dev servers
+
+```bash
+./start-dev.sh
+```
+
+This starts Metro bundlers for both Expo apps. Your phone's dev builds will connect automatically and you get **hot reload** — code changes reflect instantly without rebuilding.
+
 ---
 
-## 🐳 Docker Compose
+## 🐳 Docker Compose (Infrastructure)
+
+Docker Compose runs **only infrastructure services**, not the mobile apps.
 
 ### Services
 
@@ -74,17 +98,15 @@ To run in **detached mode** (background):
 | `db` | `postgres:16` | `metro_postgres_db` | `5432` | PostgreSQL database |
 | `backend` | Built from `./metro-app-backend/Dockerfile` | `metro_backend` | `4000` | REST API (Express + Prisma) |
 | `dashboard` | Built from `./metro-app-dashboard/Dockerfile` | `metro_dashboard` | `3000` | Admin dashboard (Next.js) |
-| `metro-app` | Built from `./metro-app/Dockerfile` | `metro_app_builder` | — | Builds the passenger Android APK |
 | `turnstile` | Built from `./metroapp-web-turnstile/Dockerfile` | `metro_turnstile` | `5000` | Web turnstile interface |
-| `nfc-receiver` | Built from `./metroapp-phoneNFChandle/Dockerfile` | `metro_nfc_builder` | — | Builds the NFC receiver APK |
 
 ### Commands
 
 ```bash
-# Build and start all services
+# Start infrastructure
 ./build.sh
 
-# Build and start in background
+# Start in background
 ./build.sh -d
 
 # Stop all services
@@ -94,58 +116,20 @@ docker compose down
 docker compose down -v
 
 # Rebuild a specific service
-docker compose build backend        # just the backend
-docker compose build metro-app      # just the APK builder
+docker compose build backend
+docker compose build dashboard
 
 # View logs
 docker compose logs -f
-docker compose logs -f backend       # just the backend API
-docker compose logs -f metro-app     # just the app builder
-docker compose logs -f db            # just the database
+docker compose logs -f backend
+docker compose logs -f db
 ```
-
-### Extracting the APK
-
-After the build completes, extract the APK from the container:
-
-```bash
-# Copy from the container to your host
-docker cp metro_app_builder:/output/ ./metro-app/build-output/
-
-# Or use the standalone build script (also auto-detects IP)
-cd metro-app && ./build-android.sh
-```
-
-The APK can be sideloaded directly onto any Android device.
 
 ---
 
 ## 🌐 Automatic IP Detection
 
-A core feature of this setup is that the **local network IP is auto-detected** every time you build, so the mobile app always points to the correct backend URL.
-
-### How it works
-
-```
-build.sh (host)
-  │
-  ├─ Detects local IP via:
-  │    1. ip route get 1.1.1.1    (Linux — most reliable)
-  │    2. hostname -I              (Linux fallback)
-  │    3. ifconfig                 (macOS / older Linux)
-  │
-  ├─ Exports API_URL=http://<detected-ip>:4000/api
-  │
-  └─ docker compose up --build
-       │
-       └─ compose.yml passes ${API_URL} as a build arg
-            │
-            └─ Dockerfile writes API_URL to .env
-                 │
-                 └─ react-native-dotenv bakes it into the JS bundle
-                      │
-                      └─ Final APK connects to http://<your-ip>:4000/api
-```
+All three scripts (`build.sh`, `build-apks.sh`, `start-dev.sh`) **auto-detect your local network IP** so the mobile apps always point to the correct backend URL.
 
 ### Override the IP manually
 
@@ -188,14 +172,14 @@ cp .env.example .env
 
 ### Build script variables
 
-These can be set when running `build.sh` or `build-android.sh`:
+These can be set when running `build.sh`, `build-apks.sh`, or `start-dev.sh`:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `API_PORT` | `4000` | Port appended to the detected IP |
 | `API_URL` | *(auto-detected)* | Full override — skips IP detection |
-| `IMAGE_NAME` | `metro-app-android` | Docker image name |
-| `OUTPUT_DIR` | `./build-output` | Where to save the APK (standalone script only) |
+| `METRO_PORT` | `8081` | Metro bundler port for metro-app |
+| `NFC_PORT` | `8082` | Metro bundler port for NFC receiver |
 
 ---
 
@@ -212,39 +196,29 @@ The passenger-facing mobile app for the metro system. Features include:
 - 📡 NFC card interaction (`react-native-nfc-manager`)
 - 🔒 Secure credential storage (`expo-secure-store`)
 
-### Standalone APK build
-
-If you only want to build the mobile APK without starting the database:
+### Build dev APK
 
 ```bash
-cd metro-app
-./build-android.sh
+./build-apks.sh metro-app
 ```
 
-### Local development (without Docker)
+Or manually:
 
 ```bash
 cd metro-app
-cp .env.example .env        # Set your API_URL
 npm install --legacy-peer-deps
-npx expo start
+npx expo run:android
 ```
 
-### Dockerfile overview
+### Development with hot reload
 
-The `metro-app/Dockerfile` uses a **two-stage build**:
+After installing the dev APK on your phone:
 
-| Stage | Base | Purpose |
-|-------|------|---------|
-| **builder** | `node:20-bookworm` | JDK 17 + Android SDK (API 35) + NDK + Gradle → builds APK |
-| **output** | `alpine:3.20` | Tiny image holding just the final `.apk` |
+```bash
+./start-dev.sh             # starts Metro bundler on port 8081
+```
 
-**Android SDK components installed:**
-
-- `platform-tools` — ADB, fastboot
-- `platforms;android-35` — Target API level
-- `build-tools;35.0.0` — Build toolchain
-- `ndk;27.1.12297006` — Native code compilation
+Open the app on your phone — it connects to the Metro bundler and you get instant hot reload.
 
 ---
 
@@ -333,19 +307,26 @@ npm run dev                 # Start on port 3000
 
 Companion app for reading NFC transit cards. This app is **fully self-contained** — it reads NFC tags on-device and POSTs validation results to the web turnstile. **No environment variables needed.**
 
-### Dockerfile overview
-
-Same two-stage Android SDK approach as `metro-app`:
-
-| Stage | Base | Purpose |
-|-------|------|---------|
-| **builder** | `node:20-bookworm` | JDK 17 + Android SDK (API 35) + NDK + Gradle → builds APK |
-| **output** | `alpine:3.20` | Tiny image holding just the `.apk` |
-
-### Extract the APK
+### Build dev APK
 
 ```bash
-docker cp metro_nfc_builder:/output/ ./nfc-build-output/
+./build-apks.sh nfc
+```
+
+Or manually:
+
+```bash
+cd metroapp-phoneNFChandle
+npm install
+npx expo run:android
+```
+
+### Development with hot reload
+
+After installing the dev APK on your phone:
+
+```bash
+./start-dev.sh             # starts Metro bundler on port 8082
 ```
 
 ---
@@ -456,17 +437,13 @@ See [VERSIONS.md](./VERSIONS.md) for component version tracking and repository l
 
 ## 🐛 Troubleshooting
 
-### Build fails with out-of-memory error
+### APK build fails — Android SDK not found
 
-Increase Docker's memory allocation to at least **6 GB**:
-- **Docker Desktop:** Settings → Resources → Memory → 6.00 GB
-
-### APK build takes too long
-
-The first build downloads ~2 GB of Android SDK + Gradle dependencies. Subsequent builds use Docker layer caching and should be much faster. To force a clean rebuild:
+Make sure `ANDROID_HOME` is set and the SDK is installed:
 
 ```bash
-docker compose build --no-cache metro-app
+export ANDROID_HOME=$HOME/Android/Sdk   # Linux
+export ANDROID_HOME=$HOME/Library/Android/sdk  # macOS
 ```
 
 ### Wrong IP detected
@@ -495,6 +472,10 @@ sudo systemctl stop postgresql
 # or
 brew services stop postgresql
 ```
+
+### Metro bundler not connecting to phone
+
+Make sure your phone and computer are on the **same Wi-Fi network**. The dev build connects to the Metro bundler using your local IP.
 
 ---
 

@@ -117,40 +117,40 @@ const AnimatedCardBackground = () => {
 
   return (
     <View style={styles.cardAnimatedBackground}>
-      <Animated.View 
+      <Animated.View
         style={[
           styles.animatedLine,
-          { 
+          {
             transform: [
               { translateX: translateX1 },
               { rotate: '45deg' }
-            ] 
+            ]
           }
-        ]} 
+        ]}
       />
-      <Animated.View 
+      <Animated.View
         style={[
           styles.animatedLine,
-          { 
+          {
             transform: [
               { translateX: translateX2 },
               { rotate: '45deg' }
             ],
             top: '30%',
           }
-        ]} 
+        ]}
       />
-      <Animated.View 
+      <Animated.View
         style={[
           styles.animatedLine,
-          { 
+          {
             transform: [
               { translateX: translateX3 },
               { rotate: '45deg' }
             ],
             top: '60%',
           }
-        ]} 
+        ]}
       />
     </View>
   );
@@ -204,18 +204,18 @@ export default function HomeScreen({ navigation }: any) {
 
   useEffect(() => {
     checkNFCAvailability();
-    
+
     return () => {
-      NfcManager.cancelTechnologyRequest().catch(() => {});
+      NfcManager.cancelTechnologyRequest().catch(() => { });
     };
   }, []);
 
   const handleStationSelect = (station: any) => {
     console.log('🎯 Estación seleccionada:', station);
-    
+
     setSearchQuery('');
     setShowStationDropdown(false);
-    
+
     // Navega al tab "Navegar"
     navigation.navigate('Navegar', {
       destinationStation: station,
@@ -228,14 +228,14 @@ export default function HomeScreen({ navigation }: any) {
   const checkNFCAvailability = async () => {
     try {
       const supported = await NfcManager.isSupported();
-      
+
       if (!supported) {
         setNfcSupported(false);
         return;
       }
-      
+
       setNfcSupported(true);
-      
+
       try {
         await NfcManager.start();
         const enabled = await NfcManager.isEnabled();
@@ -287,7 +287,7 @@ export default function HomeScreen({ navigation }: any) {
       await NfcManager.requestTechnology([NfcTech.Ndef, NfcTech.NfcA, NfcTech.IsoDep]);
 
       const tag = await NfcManager.getTag();
-      
+
       if (tag) {
         const serialNumber = tag.id;
         console.log('📱 NFC Tag detected:', serialNumber);
@@ -296,18 +296,18 @@ export default function HomeScreen({ navigation }: any) {
         setIsScanning(false);
 
         // Check if this is the special card that triggers registration
-        if (serialNumber === '9A6F2099') {
+        if (serialNumber === '057E0968B864E9') {
           console.log('🎯 Special card detected! Sending registration...');
-          
+
           const payload = {
             nfcuid: selectedCard.nfcuid,
             reqType: 'phone',
             stationid: 97,
           };
-          
+
           console.log('📤 Payload:', payload);
           console.log('🌐 API URL:', `${API_URL}/cardusage/registerTap`);
-          
+
           try {
             const response = await fetch(`${API_URL}/cardusage/registerTap`, {
               method: 'POST',
@@ -319,7 +319,7 @@ export default function HomeScreen({ navigation }: any) {
 
             console.log('📥 Response status:', response.status);
             console.log('📥 Response ok:', response.ok);
-            
+
             const responseText = await response.text();
             console.log('📥 Response body:', responseText);
 
@@ -333,7 +333,7 @@ export default function HomeScreen({ navigation }: any) {
 
             if (response.ok && responseData.success) {
               Alert.alert('Éxito', 'Pase completado exitosamente');
-              
+
             } else {
               // Show the specific error message from the backend
               const errorMessage = responseData.error || responseData.message || 'No se pudo completar el pase';
@@ -347,7 +347,7 @@ export default function HomeScreen({ navigation }: any) {
         }
 
         console.log('💳 Normal card flow - showing payment confirmation');
-        
+
         // Normal card detection flow
         Alert.alert(
           'Tarjeta Detectada',
@@ -364,8 +364,8 @@ export default function HomeScreen({ navigation }: any) {
     } catch (error: any) {
       console.error('❌ NFC Scan error:', error);
       setIsScanning(false);
-      await NfcManager.cancelTechnologyRequest().catch(() => {});
-      
+      await NfcManager.cancelTechnologyRequest().catch(() => { });
+
       if (error.message && !error.message.includes('cancelled')) {
         Alert.alert('Error', `No se pudo leer la tarjeta NFC\n\n${error.message}`);
       }
@@ -433,13 +433,13 @@ export default function HomeScreen({ navigation }: any) {
             style={styles.backgroundImage}
             contentFit="cover"
             cachePolicy="disk"
-            placeholder={{ blurhash: 'LKN]Rv%2Tw=w]~RBVZRi};RPxuwH' }} 
+            placeholder={{ blurhash: 'LKN]Rv%2Tw=w]~RBVZRi};RPxuwH' }}
           />
           <View style={styles.headerOverlay}>
             <Text style={styles.welcomeText}>Bienvenido a</Text>
-            <Text style={styles.stationName}>MetroApp</Text>
-            <Text style={styles.stationName}>Tu App de Metro</Text>
-            <TouchableOpacity 
+            <Text style={styles.stationName}>MontaoRD</Text>
+            <Text style={styles.stationName}>Tu App de Transporte</Text>
+            <TouchableOpacity
               style={styles.mapButton}
               onPress={() => setShowMapModal(true)}
             >
@@ -481,7 +481,7 @@ export default function HomeScreen({ navigation }: any) {
               </TouchableOpacity>
             )}
           </View>
-          
+
           <StationSearchDropdown
             searchQuery={searchQuery}
             onStationSelect={handleStationSelect}
@@ -490,7 +490,7 @@ export default function HomeScreen({ navigation }: any) {
         </View>
 
         <View style={styles.actionsContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionButton}
             onPress={() => setShowRechargeModal(true)}
           >
@@ -500,7 +500,7 @@ export default function HomeScreen({ navigation }: any) {
             <Text style={styles.actionText}>Recarga</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionButton}
             onPress={handleGoToHistory}
           >
@@ -510,7 +510,7 @@ export default function HomeScreen({ navigation }: any) {
             <Text style={styles.actionText}>Historial</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionButton}
             onPress={() => setShowScanModal(true)}
           >
@@ -520,7 +520,7 @@ export default function HomeScreen({ navigation }: any) {
             <Text style={styles.actionText}>Pasar</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionButton}
             onPress={() => setShowReceiptsModal(true)}
           >
@@ -580,11 +580,11 @@ export default function HomeScreen({ navigation }: any) {
 
             <Text style={styles.modalSubtitle}>Red del Metro y Teleférico de Santo Domingo</Text>
 
-              <ScrollView 
-                style={styles.scrollView} 
-                showsVerticalScrollIndicator={false}
-                nestedScrollEnabled={true}  // ← AGREGAR ESTO
-              >
+            <ScrollView
+              style={styles.scrollView}
+              showsVerticalScrollIndicator={false}
+              nestedScrollEnabled={true}  // ← AGREGAR ESTO
+            >
               <Image
                 source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/6/67/Mapa_de_Red_del_Metro_y_Telef%C3%A9rico_de_Santo_Domingo.jpg' }}
                 style={styles.mapImage}
@@ -702,19 +702,19 @@ export default function HomeScreen({ navigation }: any) {
                   <PulseRing delay={400} />
                   <PulseRing delay={800} />
                   <PulseRing delay={1200} />
-                  
+
                   <View style={styles.nfcIconContainer}>
                     <Icon name="radio-button-on" size={70} color={COLORS.white} />
                   </View>
                 </View>
 
                 <Text style={styles.scanText}>
-                  {isScanning 
-                    ? 'Acerca tu tarjeta al lector NFC...' 
+                  {isScanning
+                    ? 'Acerca tu tarjeta al lector NFC...'
                     : 'Preparando lector NFC...'}
                 </Text>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.cancelButton}
                   onPress={() => {
                     stopNFCScan();
@@ -827,9 +827,9 @@ export default function HomeScreen({ navigation }: any) {
                     </View>
                     <Text style={styles.receiptAmount}>+DOP {receipt.amount}</Text>
                   </View>
-                  
+
                   <View style={styles.receiptDivider} />
-                  
+
                   <View style={styles.receiptDetails}>
                     <View style={styles.receiptDetailRow}>
                       <Text style={styles.receiptDetailLabel}>Tarjeta:</Text>

@@ -1,7 +1,11 @@
 # ==============================================================================
-#  Metro System — Docker Compose
+#  Metro System — Docker Compose (Infrastructure Services)
 #  Usage:  ./build.sh          (auto-detects IP, builds & runs everything)
 #  Manual: API_URL=http://<IP>:4000/api docker compose up --build
+#
+#  Note: Expo mobile apps are NOT built here. Build them separately with:
+#        ./build-apks.sh       (one-time dev APK build)
+#        ./start-dev.sh        (start Metro dev servers for hot reload)
 # ==============================================================================
 
 services:
@@ -11,18 +15,18 @@ services:
     container_name: metro_postgres_db
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Brackix123
-      POSTGRES_DB: metroapp
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
       interval: 5s
       timeout: 3s
-      retries: 5
 
   # ── Backend API (Express + Prisma) ────────────────────────────────────────────
   backend:
@@ -32,21 +36,21 @@ services:
     container_name: metro_backend
     restart: always
     ports:
-      - "4000:4000"
+      - "${BACKEND_PORT}:4000"
     environment:
-      DB_USER: postgres
-      DB_PASSWORD: Brackix123
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_HOST: db
       DB_PORT: 5432
-      DB_NAME: metroapp
-      PORT: 4000
-      FRONTEND_URL: http://localhost:3000
-      NODE_ENV: production
+      DB_NAME: ${POSTGRES_DB}
+      PORT: ${PORT}
+      FRONTEND_URL: ${FRONTEND_URL}
+      NODE_ENV: ${NODE_ENV}
     depends_on:
       db:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD-SHELL", "node -e \"fetch('http://localhost:4000/api/stations').then(r=>{if(!r.ok)throw 0;process.exit(0)}).catch(()=>process.exit(1))\"" ]
+      test: [ "CMD-SHELL", "node -e \"fetch('http://localhost:${PORT}/api/stations').then(r=>{if(!r.ok)throw 0;process.exit(0)}).catch(()=>process.exit(1))\"" ]
       interval: 15s
       timeout: 5s
       start_period: 15s
@@ -62,21 +66,7 @@ services:
     container_name: metro_dashboard
     restart: always
     ports:
-      - "3000:3000"
-    depends_on:
-      backend:
-        condition: service_healthy
-
-  # ── Expo Android APK Builder ───────────────────────────────────────────────────
-  metro-app:
-    build:
-      context: ./metro-app
-      dockerfile: Dockerfile
-      args:
-        API_URL: ${API_URL:-http://localhost:4000/api}
-    container_name: metro_app_builder
-    volumes:
-      - apk_output:/output
+      - "${DASHBOARD_PORT}:3000"
     depends_on:
       backend:
         condition: service_healthy
@@ -89,18 +79,7 @@ services:
     container_name: metro_turnstile
     restart: always
     ports:
-      - "5000:5000"
-
-  # ── NFC Receiver APK Builder (Expo) ──────────────────────────────────────────
-  nfc-receiver:
-    build:
-      context: ./metroapp-phoneNFChandle
-      dockerfile: Dockerfile
-    container_name: metro_nfc_builder
-    volumes:
-      - nfc_apk_output:/output
+      - "${TURNSTILE_PORT}:5000"
 
 volumes:
   postgres_data:
-  apk_output:
-  nfc_apk_output:

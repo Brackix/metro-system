@@ -75,6 +75,5 @@ EXPOSE ${PORT}
 HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
     CMD node -e "fetch('http://localhost:${PORT}/api/stations').then(r => { if (!r.ok) throw new Error(); process.exit(0); }).catch(() => process.exit(1))"
 
-# Start the server
-# Use shell form so DATABASE_URL is rebuilt from the actual env vars at runtime
-CMD sh -c 'export DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public" && node dist/index.js'
+# Start the server — sync schema first, then launch
+CMD sh -c 'export DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public" && npx prisma db push --skip-generate && node dist/index.js'

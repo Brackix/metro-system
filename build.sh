@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# build.sh — Auto-detect local IP → build & start the full Metro System stack
+# build.sh — Auto-detect local IP → build & start the Metro System infrastructure
+#
+# This starts ONLY the infrastructure services:
+#   • PostgreSQL database
+#   • Backend API (Express + Prisma)
+#   • Dashboard (Next.js)
+#   • Web Turnstile
+#
+# For Expo mobile apps, see:
+#   ./build-apks.sh   — build development APKs (one-time)
+#   ./start-dev.sh    — start Metro dev servers for hot reload
 # ==============================================================================
 set -euo pipefail
 
@@ -44,14 +54,24 @@ LOCAL_IP=$(detect_local_ip)
 export API_URL="http://${LOCAL_IP}:${API_PORT}/api"
 
 echo "============================================================"
-echo "  🚇  Metro System — Docker Compose Build"
+echo "  🚇  Metro System — Infrastructure Services"
 echo "============================================================"
 echo ""
 echo "  📡  Detected local IP:  ${LOCAL_IP}"
 echo "  🌐  API_URL:            ${API_URL}"
 echo ""
+echo "  Services starting:"
+echo "    • PostgreSQL         → localhost:5432"
+echo "    • Backend API        → localhost:${API_PORT}"
+echo "    • Dashboard          → localhost:3000"
+echo "    • Turnstile          → localhost:5000"
+echo ""
+echo "  📱  For mobile apps, run separately:"
+echo "    • ./build-apks.sh    (one-time: build & install dev APKs)"
+echo "    • ./start-dev.sh     (start Metro dev servers)"
+echo ""
 echo "============================================================"
 echo ""
 
-# ── Build & start everything ─────────────────────────────────────────────────────
+# ── Build & start infrastructure ─────────────────────────────────────────────────
 docker compose up --build "$@"
