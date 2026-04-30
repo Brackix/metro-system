@@ -7,12 +7,10 @@
 # ==============================================================================
 
 # ── Stage 1: Build ──────────────────────────────────────────────────────────────
-FROM node:22-slim AS builder
+FROM node:22-alpine AS builder
 
 # Install OpenSSL (required by Prisma engine binaries)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    openssl \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
@@ -33,11 +31,12 @@ COPY . .
 RUN npm run build
 
 # ── Stage 2: Production ────────────────────────────────────────────────────────
-FROM node:22-slim AS production
+FROM node:22-alpine AS production
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    openssl \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache openssl
+
+# Run as non-root for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 WORKDIR /app
 
@@ -67,6 +66,9 @@ ENV DB_USER=postgres \
 
 # Prisma needs DATABASE_URL at runtime — compose from individual vars at startup
 ENV DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public"
+
+# Switch to non-root user
+USER appuser
 
 # Expose the API port
 EXPOSE ${PORT}
